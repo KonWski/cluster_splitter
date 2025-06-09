@@ -6,6 +6,7 @@ import numpy as np
 import random
 from typing import List
 import os
+from rdkit.Chem.Scaffolds.MurckoScaffold import GetScaffoldForMol
 
 def load_hiv(path: str, load_on_device: bool = False, convert_fingerprints_to_float: bool = False, fpSize: int = 2048, radius: int = 3, device = None):
 
@@ -180,3 +181,25 @@ def load_clusterization_data(path: str, reset_cluster_labels: bool):
         _, cluster_labels = cluster_labels.unique(sorted=True, return_inverse=True)
 
     return centroids, cluster_labels, silhouette_scores, centroid_shifts
+
+def map_scaffolds(smiles, scaffolds_as_fingerprints: bool, fpsize: int, radius: int):
+    scaffolds = []
+    scaffold_smiles = []
+    scaffold_fingerprints = []
+    fpgen = AllChem.GetMorganGenerator(fpSize = fpsize, radius=radius) if scaffolds_as_fingerprints else None
+
+    for smile in smiles:
+        mol = Chem.MolFromSmiles(smile)
+        mol = Chem.AddHs(mol)
+
+        scaffold = GetScaffoldForMol(mol)
+        scaffold = Chem.AddHs(scaffold)
+
+        scaffolds.append(scaffold)
+        scaffold_smiles.append(Chem.MolToSmiles(scaffold))
+
+        if scaffolds_as_fingerprints:
+            scaffold_fingerprint = fpgen.GetFingerprintAsNumPy(scaffold)
+            scaffold_fingerprints.append(scaffold_fingerprint)
+
+    return scaffolds, scaffold_smiles, scaffold_fingerprints
