@@ -110,18 +110,17 @@ def extract_validation_part(X: torch.Tensor, y: torch.Tensor, smiles: List[str],
     print(f"val_indices_list: {val_indices_list}")
 
     # split the data on validation and rest
-    X_val, y_val, smiles_val, similarity_matrix_val = X[val_indices], y[val_indices], \
-        [smiles[id] for id in val_indices_list], similarity_matrix[val_indices, :][:, val_indices]
+    X_val, y_val, smiles_val = X[val_indices], y[val_indices], [smiles[id] for id in val_indices_list]
     print(f"len(smiles_val): {len(smiles_val)}")
 
     mask = torch.ones(X.shape[0])
     mask[val_indices] = 0
     mask = mask.bool()
-    X_rest, y_rest, similarity_matrix_rest = X[mask], y[mask], similarity_matrix[mask, :][:, mask]
+    X_rest, y_rest, similarity_matrix = X[mask], y[mask], similarity_matrix[mask, :][:, mask]
     smiles_rest = [smiles[id] for id in range(len(smiles)) if id not in set(val_indices_list)]
     print(f"len(smiles_rest): {len(smiles_rest)}")
 
-    return X_val, X_rest, y_val, y_rest, smiles_val, smiles_rest, similarity_matrix_val, similarity_matrix_rest
+    return X_val, X_rest, y_val, y_rest, smiles_val, smiles_rest, similarity_matrix
 
 
 def jaccard_similarity(X: torch.Tensor, similarity_matrix_path: str, device):
