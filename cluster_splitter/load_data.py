@@ -102,10 +102,12 @@ def extract_validation_part(X: torch.Tensor, y: torch.Tensor, smiles: List[str],
     n_molecules_validation = int(validation_size * X.shape[0])
 
     # find the minimal distances for each molecule
-    min_distances = torch.min(similarity_matrix, dim=1).values
+    temp_similarity_matrix = similarity_matrix.clone()
+    temp_similarity_matrix.diagonal().copy_(torch.tensor([0.0 for i in range(temp_similarity_matrix.shape[0])]))
+    max_similarities = torch.min(temp_similarity_matrix, dim=1).values
 
-    # find indices of the molecules with the biggest distances to their nearest neighbours
-    _, val_indices = torch.topk(min_distances, largest = True, k=n_molecules_validation)
+    # min max_similarities
+    _, val_indices = torch.topk(max_similarities, largest = False, k=n_molecules_validation)
     val_indices_list = val_indices.tolist()
     print(f"val_indices_list: {val_indices_list}")
 
