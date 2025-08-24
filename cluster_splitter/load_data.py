@@ -75,7 +75,7 @@ def drop_duplicates(fingerprints, labels, smiles):
 
         # leave only one record
         else:
-            new_indices_to_drop = random.sample(indices, len(indices)-1)
+            new_indices_to_drop = indices[:-1]
 
         indices_to_drop = indices_to_drop + new_indices_to_drop
 
